@@ -2,7 +2,7 @@
 ### no babel no cry...
 ![Tux, the Linux mascot](picture.png)
 
-This project runs tests with **Cypress** and collect code coverage using **v8 native Profiler** and the **Chrome Debugger Protocol** for then generating reports using **c8**.
+This project runs tests with `Cypress` and collect code coverage using `v8 native Profiler` and the `Chrome Debugger Protocol` for then generating reports using `c8`.
 
 ### Install
 Well... in this case just clone the project and tailor it to your needs. Happy hacking!
