@@ -1,5 +1,5 @@
 {
-  "public": "app",
+  "public": "public",
   "headers": [{
     "source": "**/*",
     "headers": [{
