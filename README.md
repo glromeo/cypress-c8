@@ -15,7 +15,7 @@ yarn install
 yarn ci
 yarn report
 ```
-the report will be available in [coverage/index.html](coverage/index.html)
+the report will be available in [coverage/index.html](https://glromeo.github.io/cypress-c8/coverage/index.html)
 
 ### Start server and test
 This project follows the convention explained [here](https://github.com/bahmutov/start-server-and-test#use)
