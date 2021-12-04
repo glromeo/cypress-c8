@@ -2,7 +2,7 @@
 ### no babel no cry...
 ![Tux, the Linux mascot](picture.png)
 
-This project runs tests with **Cypress** and collect code coverage using **v8 native Profiler** and the **Chrome Debugger Protocol** for then generating reports using **c8**.
+This project runs tests with `Cypress` and collect code coverage using `v8 native Profiler` and the `Chrome Debugger Protocol` for then generating reports using `c8`.
 
 ### Install
 Well... in this case just clone the project and tailor it to your needs. Happy hacking!
@@ -15,7 +15,7 @@ yarn install
 yarn ci
 yarn report
 ```
-the report will be available in [coverage/index.html](coverage/index.html)
+the report will be available in [coverage/index.html](https://glromeo.github.io/cypress-c8/coverage/index.html)
 
 ### Start server and test
 This project follows the convention explained [here](https://github.com/bahmutov/start-server-and-test#use)
