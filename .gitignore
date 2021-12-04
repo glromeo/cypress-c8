@@ -49,3 +49,4 @@ typings/
 .env
 .env.test
 
+/.idea/
