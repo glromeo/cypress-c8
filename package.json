@@ -7,7 +7,7 @@
     "test": "cypress run",
     "ci": "cross-env ELECTRON_EXTRA_LAUNCH_ARGS=--remote-debugging-port=8315 server-test http://localhost:3000",
     "cypress": "cypress open",
-    "report": "c8 report --reporter=html"
+    "report": "c8 report --omit-relative=false --reporter=html"
   },
   "keywords": [
     "cypress",

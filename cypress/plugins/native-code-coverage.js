@@ -62,6 +62,9 @@ module.exports = (on, config) => {
             if (cdp) {
                 console.log("stopping code coverage");
                 return cdp.Profiler.takePreciseCoverage().then(coverage => {
+                    for (const script of coverage.result) {
+                        script.url = script.url.replace("http://localhost:3000", "app");
+                    }
                     const filename = path.join(COVERAGE_TMP_DIR, `coverage-${fileConter++}.json`);
                     return Promise.all([
                         fs.promises.writeFile(filename, JSON.stringify(coverage), "utf8"),
