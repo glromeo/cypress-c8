@@ -3,6 +3,6 @@
   "watchForFileChanges": false,
   "video": false,
   "nodeVersion": "bundled",
-  "execTimeout": 60000,
-  "taskTimeout": 60000
+  "execTimeout": 6000000,
+  "taskTimeout": 6000000
 }

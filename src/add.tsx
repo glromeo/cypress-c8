@@ -4,7 +4,7 @@
  * @param left
  * @param right
  */
-export function add(left: number | null, right: number | null): number | null {
+export function addizione(left: number | null, right: number | null): number | null {
     if (left === null) {
         return null;
     }
@@ -13,3 +13,7 @@ export function add(left: number | null, right: number | null): number | null {
     }
     return left + right;
 }
+
+// is it really that silly?
+
+(window as any)["x"]="x";

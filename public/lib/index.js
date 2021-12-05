@@ -33607,7 +33607,7 @@ const theme2 = createTheme({ palette: {
   var TextField_default = TextField;
 
   // src/add.tsx
-  function add(left2, right2) {
+  function addizione(left2, right2) {
     if (left2 === null) {
       return null;
     }
@@ -33616,6 +33616,7 @@ const theme2 = createTheme({ palette: {
     }
     return left2 + right2;
   }
+  window["x"] = "x";
 
   // src/App.tsx
   function App() {
@@ -33666,7 +33667,7 @@ const theme2 = createTheme({ palette: {
       variant: "contained",
       style: { margin: "3rem" },
       onClick: () => {
-        setResult(add(left2, right2));
+        setResult(addizione(left2, right2));
       }
     }, "Calculate")))));
   }

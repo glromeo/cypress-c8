@@ -3,7 +3,7 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Button from "@mui/material/Button";
 import {TextField} from "@mui/material";
-import {add} from "./add";
+import {addizione} from "./add";
 
 export default function App() {
     const [left, setLeft] = useState<number | null>(null);
@@ -37,7 +37,7 @@ export default function App() {
                     <div className="flex-row">
                         <div className="filler"/>
                         <Button variant="contained" style={{margin: "3rem"}} onClick={() => {
-                            setResult(add(left, right));
+                            setResult(addizione(left, right));
                         }}>Calculate</Button>
                     </div>
                 </div>
