@@ -13,7 +13,6 @@ git clone https://github.com/glromeo/cypress-c8.git
 cd cypress-c8
 yarn install
 yarn ci
-yarn report
 ```
 the report will be available in [coverage/index.html](https://glromeo.github.io/cypress-c8/coverage/index.html)
 
