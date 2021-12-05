@@ -1,14 +1,23 @@
 const CDP = require("chrome-remote-interface");
 const path = require("path");
 const fs = require("fs");
+const v8ToIstanbul = require("v8-to-istanbul");
+const libCoverage = require("istanbul-lib-coverage");
+const libReport = require("istanbul-lib-report");
+const reports = require("istanbul-reports");
 
-const COVERAGE_TMP_DIR = require("path").resolve(__dirname, "../../coverage/tmp")
+const {writeFile} = fs.promises;
+
+const BASEDIR = path.resolve(__dirname, "../..");
+const PUBLIC = path.resolve(BASEDIR, "public");
+const NYC_OUTPUT = path.resolve(BASEDIR, ".nyc_output");
 try {
-    fs.mkdirSync(COVERAGE_TMP_DIR, {recursive: true});
+    fs.mkdirSync(NYC_OUTPUT, {recursive: true});
 } catch (e) {
 }
 
-let cdp, fileConter = 0;
+const intermediateOutput = false;
+let cdp;
 
 module.exports = (on, config) => {
 
@@ -26,7 +35,7 @@ module.exports = (on, config) => {
 
             const tryConnect = async () => {
                 try {
-                    cdp = await new CDP({port: port});
+                    cdp = await CDP({port});
                     cdp.on("disconnect", () => {
                         console.log("chrome debugging protocol disconnected");
                         cdp = null;
@@ -45,39 +54,63 @@ module.exports = (on, config) => {
 
     on("task", {
 
-        ["coverage:before"]() {
+        async ["coverage:before"]() {
             if (cdp) {
                 console.log("starting code coverage");
-                const callCount = true;
-                const detailed = true;
-                return Promise.all([
-                    cdp.Profiler.enable(),
-                    cdp.Profiler.startPreciseCoverage(callCount, detailed)
-                ]);
+                await cdp.Profiler.enable();
+                await cdp.Profiler.startPreciseCoverage({
+                    detailed: true,
+                    callCount: true,
+                    allowTriggeredUpdates: true
+                });
             }
             return null;
         },
 
-        ["coverage:after"]() {
+        async ["coverage:after"]() {
             if (cdp) {
                 console.log("stopping code coverage");
-                return cdp.Profiler.takePreciseCoverage().then(coverage => {
-                    const result = [];
-                    for (const script of coverage.result) if (script.url) {
-                        script.url = script.url.replace("http://localhost:3000", "public");
-                        if (script.url.startsWith("public/lib")) {
-                            result.push(script);
-                        }
+                const coverage = await cdp.Profiler.takePreciseCoverage();
+                const coverageMap = libCoverage.createCoverageMap();
+
+                for (const {url, functions} of coverage.result) if (url) try {
+                    const {pathname} = new URL(url);
+                    if (pathname.startsWith("/lib/") && pathname.endsWith(".js")) {
+                        const converter = v8ToIstanbul(
+                            path.join(PUBLIC, pathname),
+                            0,
+                            null,
+                            pathname => {
+                                const relative = path.relative(BASEDIR, pathname).replaceAll("\\", "/");
+                                const accept = relative.startsWith("src") || relative.startsWith("../../src");
+                                return !accept;
+                            }
+                        );
+                        await converter.load();
+                        converter.applyCoverage(functions);
+                        coverageMap.merge(converter.toIstanbul());
                     }
-                    const filename = path.join(COVERAGE_TMP_DIR, `coverage-${fileConter++}.json`);
-                    return Promise.all([
-                        fs.promises.writeFile(filename, JSON.stringify({
-                            ...coverage,
-                            result
-                        }), "utf8"),
-                        cdp.Profiler.stopPreciseCoverage()
-                    ]);
+                } catch (ignored) {
+                    console.error(ignored);
+                }
+
+                if (intermediateOutput) {
+                    const outfile = path.join(NYC_OUTPUT, `out.json`);
+                    await writeFile(outfile, JSON.stringify(coverageMap.toJSON()));
+                }
+
+                const context = libReport.createContext({
+                    dir: path.resolve(BASEDIR, "coverage"),
+                    coverageMap
                 });
+
+                for (const reporter of ["html"]) {
+                    reports.create(reporter, {
+                        skipEmpty: false
+                    }).execute(context);
+                }
+
+                await cdp.Profiler.stopPreciseCoverage();
             }
             return null;
         }

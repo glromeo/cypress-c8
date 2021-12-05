@@ -2,5 +2,7 @@
   "baseUrl": "http://localhost:3000/",
   "watchForFileChanges": false,
   "video": false,
-  "nodeVersion": "bundled"
+  "nodeVersion": "bundled",
+  "execTimeout": 60000,
+  "taskTimeout": 60000
 }

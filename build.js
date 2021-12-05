@@ -8,6 +8,6 @@ esbuild.build({
         sassPlugin({type: "style"})
     ],
     bundle: true,
-    minify: true,
+    minify: false,
     sourcemap: true
 }).then(()=>console.log("OK"), (e)=>console.error(e));

@@ -7,8 +7,7 @@
     "start": "serve --no-clipboard",
     "test": "cross-env ELECTRON_EXTRA_LAUNCH_ARGS=--remote-debugging-port=8315 cypress run",
     "ci": "server-test http://localhost:3000",
-    "cypress": "cross-env ELECTRON_EXTRA_LAUNCH_ARGS=--remote-debugging-port=8315 cypress open",
-    "report": "c8 report --omit-relative=false --reporter=html"
+    "cypress": "cross-env ELECTRON_EXTRA_LAUNCH_ARGS=--remote-debugging-port=8315 cypress open"
   },
   "keywords": [
     "cypress",
@@ -22,17 +21,21 @@
   "author": "Gianluca Romeo <glromeo@gmail.com>",
   "license": "MIT",
   "devDependencies": {
+    "@types/chrome-remote-interface": "^0.31.4",
     "@types/react": "^17.0.37",
     "@types/react-dom": "^17.0.11",
-    "c8": "^7.10.0",
     "chrome-remote-interface": "0.31.1",
     "cross-env": "^7.0.3",
-    "cypress": "^9.1.0",
+    "cypress": "^9.1.1",
     "esbuild": "^0.14.2",
     "esbuild-sass-plugin": "^1.8.0",
+    "istanbul-lib-coverage": "^3.2.0",
+    "istanbul-lib-report": "^3.0.0",
+    "istanbul-reports": "^3.1.1",
     "serve": "^13.0.2",
     "start-server-and-test": "^1.14.0",
-    "typescript": "^4.5.2"
+    "typescript": "^4.5.2",
+    "v8-to-istanbul": "8.1.0"
   },
   "dependencies": {
     "@emotion/react": "^11.7.0",

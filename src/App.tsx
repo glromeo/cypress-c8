@@ -6,33 +6,33 @@ import {TextField} from "@mui/material";
 import {add} from "./add";
 
 export default function App() {
-    const [left, setLeft] = useState<number | undefined>(undefined);
-    const [right, setRight] = useState<number | undefined>(undefined);
-    const [result, setResult] = useState<number | undefined>(undefined);
+    const [left, setLeft] = useState<number | null>(null);
+    const [right, setRight] = useState<number | null>(null);
+    const [result, setResult] = useState<number | null>(null);
     return (
         <Card sx={{minWidth: 275}}>
             <CardContent>
                 <div className="flex-column">
                     <div className="flex-row">
-                        <TextField id="left" value={left} onChange={({target}) => {
+                        <TextField id="left" value={left ?? ""} onChange={({target}) => {
                             let value = parseFloat(target.value);
                             if (!isNaN(value)) {
                                 setLeft(value);
                             } else {
-                                setLeft(undefined);
+                                setLeft(null);
                             }
                         }}/>
                         <div style={{padding: "1rem", fontSize: "4rem"}}>+</div>
-                        <TextField id="right" value={right} onChange={({target}) => {
+                        <TextField id="right" value={right ?? ""} onChange={({target}) => {
                             let value = parseFloat(target.value);
                             if (!isNaN(value)) {
                                 setRight(value);
                             } else {
-                                setRight(undefined);
+                                setRight(null);
                             }
                         }}/>
                         <div style={{padding: "1rem", fontSize: "4rem"}}>=</div>
-                        <TextField id="result" value={result} onChange={value => console.log(value)}/>
+                        <TextField id="result" value={result ?? ""} onChange={value => console.log(value)}/>
                     </div>
                     <div className="flex-row">
                         <div className="filler"/>

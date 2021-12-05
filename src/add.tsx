@@ -4,12 +4,12 @@
  * @param left
  * @param right
  */
-export function add(left: number | undefined, right: number | undefined): number | undefined {
-    if (left === undefined) {
-        return undefined;
+export function add(left: number | null, right: number | null): number | null {
+    if (left === null) {
+        return null;
     }
-    if (right === undefined) {
-        return undefined;
+    if (right === null) {
+        return null;
     }
     return left + right;
 }
