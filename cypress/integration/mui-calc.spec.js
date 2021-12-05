@@ -19,17 +19,17 @@ describe("example mui calc app", () => {
         cy.get("#result").should("have.value", "");
     });
 
-    it("can add 1 + 1", () => {
-
-        cy.get("#left").type("1");
-        cy.get("#right").type("1");
-
-        cy.get("button:contains('Calculate')").click();
-
-        cy.wait(250);
-
-        cy.get("#left").should("have.value", "1");
-        cy.get("#right").should("have.value", "1");
-        cy.get("#result").should("have.value", "2");
-    });
+    // it("can add 1 + 1", () => {
+    //
+    //     cy.get("#left").type("1");
+    //     cy.get("#right").type("1");
+    //
+    //     cy.get("button:contains('Calculate')").click();
+    //
+    //     cy.wait(250);
+    //
+    //     cy.get("#left").should("have.value", "1");
+    //     cy.get("#right").should("have.value", "1");
+    //     cy.get("#result").should("have.value", "2");
+    // });
 });
