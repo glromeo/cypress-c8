@@ -33671,7 +33671,7 @@ const theme2 = createTheme({ palette: {
     }, "Calculate")))));
   }
 
-  // sass-plugin-0:D:\Workspace\cypress-c8\src\index.scss
+  // sass-plugin-0:/Users/Gianluca/IdeaProjects/cypress-c8/src/index.scss
   var css2 = `.flex-row {
   display: flex;
   flex-direction: row;
