@@ -33616,7 +33616,6 @@ const theme2 = createTheme({ palette: {
     }
     return left2 + right2;
   }
-  window["x"] = "x";
 
   // src/App.tsx
   function App() {
@@ -33672,7 +33671,7 @@ const theme2 = createTheme({ palette: {
     }, "Calculate")))));
   }
 
-  // sass-plugin-0:/Users/Gianluca/IdeaProjects/cypress-c8/src/index.scss
+  // sass-plugin-0:D:\Workspace\cypress-c8\src\index.scss
   var css2 = `.flex-row {
   display: flex;
   flex-direction: row;
