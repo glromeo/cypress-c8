@@ -6,7 +6,7 @@ const libCoverage = require("istanbul-lib-coverage");
 const libReport = require("istanbul-lib-report");
 const reports = require("istanbul-reports");
 
-const {writeFile} = fs.promises;
+const {readFile, writeFile} = fs.promises;
 
 const BASEDIR = path.resolve(__dirname, "../..");
 const PUBLIC = path.resolve(BASEDIR, "public");
@@ -16,12 +16,19 @@ try {
 } catch (e) {
 }
 
-const intermediateOutput = false;
+const NYC_OUTFILE = path.join(NYC_OUTPUT, `out.json`);
+try {
+    fs.rmSync(NYC_OUTFILE);
+} catch (e) {
+    throw new Error("unable to delete previous coverage results");
+}
+
 let cdp;
 
 module.exports = (on, config) => {
 
     on("before:browser:launch", function (browser, launchOptions) {
+        console.log("before:browser:launch");
         if (browser.name === "chrome" || browser.name === "edge" || browser.name === "electron") {
 
             let rdpArgument = launchOptions.args.find(arg => arg.startsWith("--remote-debugging-port"));
@@ -40,6 +47,15 @@ module.exports = (on, config) => {
                         console.log("chrome debugging protocol disconnected");
                         cdp = null;
                     });
+
+                    console.log("starting code coverage");
+                    await cdp.Profiler.enable();
+                    await cdp.Profiler.startPreciseCoverage({
+                        detailed: true,
+                        callCount: true,
+                        allowTriggeredUpdates: true
+                    });
+
                 } catch (e) {
                     console.error(e.message);
                     setTimeout(tryConnect, 1000);
@@ -52,67 +68,54 @@ module.exports = (on, config) => {
         return null;
     });
 
-    on("task", {
+    on("after:spec", async (results) => {
+        if (cdp) {
+            console.log("stopping code coverage");
+            const coverage = await cdp.Profiler.takePreciseCoverage();
+            const coverageMap = libCoverage.createCoverageMap();
 
-        async ["coverage:before"]() {
-            if (cdp) {
-                console.log("starting code coverage");
-                await cdp.Profiler.enable();
-                await cdp.Profiler.startPreciseCoverage({
-                    detailed: true,
-                    callCount: true,
-                    allowTriggeredUpdates: true
-                });
+            try {
+                const data = JSON.parse(await readFile(NYC_OUTFILE, "utf8"));
+                coverageMap.merge(data);
+            } catch (ignored) {
             }
-            return null;
-        },
 
-        async ["coverage:after"]() {
-            if (cdp) {
-                console.log("stopping code coverage");
-                const coverage = await cdp.Profiler.takePreciseCoverage();
-                const coverageMap = libCoverage.createCoverageMap();
-
-                for (const {url, functions} of coverage.result) if (url) try {
-                    const {pathname} = new URL(url);
-                    if (pathname.startsWith("/lib/") && pathname.endsWith(".js")) {
-                        const converter = v8ToIstanbul(
-                            path.join(PUBLIC, pathname),
-                            0,
-                            null,
-                            pathname => {
-                                const relative = path.relative(BASEDIR, pathname).replaceAll("\\", "/");
-                                const accept = relative.startsWith("src") || relative.startsWith("../../src");
-                                return !accept;
-                            }
-                        );
-                        await converter.load();
-                        converter.applyCoverage(functions);
-                        coverageMap.merge(converter.toIstanbul());
-                    }
-                } catch (ignored) {
-                    console.error(ignored);
+            for (const {url, functions} of coverage.result) if (url) try {
+                const {pathname} = new URL(url);
+                if (pathname.startsWith("/lib/") && pathname.endsWith(".js")) {
+                    const converter = v8ToIstanbul(
+                        path.join(PUBLIC, pathname),
+                        0,
+                        null,
+                        pathname => {
+                            const relative = path.relative(BASEDIR, pathname).replaceAll("\\", "/");
+                            const accept = relative.startsWith("src") || relative.startsWith("../../src");
+                            return !accept;
+                        }
+                    );
+                    await converter.load();
+                    converter.applyCoverage(functions);
+                    coverageMap.merge(converter.toIstanbul());
                 }
-
-                if (intermediateOutput) {
-                    const outfile = path.join(NYC_OUTPUT, `out.json`);
-                    await writeFile(outfile, JSON.stringify(coverageMap.toJSON()));
-                }
-
-                const context = libReport.createContext({
-                    dir: path.resolve(BASEDIR, "coverage"),
-                    coverageMap
-                });
-
-                for (const reporter of ["html"]) {
-                    reports.create(reporter, {
-                        skipEmpty: false
-                    }).execute(context);
-                }
-
-                await cdp.Profiler.stopPreciseCoverage();
+            } catch (ignored) {
+                console.error(ignored);
             }
-            return null;
+
+            await writeFile(NYC_OUTFILE, JSON.stringify(coverageMap.toJSON()));
+
+            const context = libReport.createContext({
+                dir: path.resolve(BASEDIR, "coverage"),
+                coverageMap
+            });
+
+            for (const reporter of ["html"]) {
+                reports.create(reporter, {
+                    skipEmpty: false
+                }).execute(context);
+            }
+
+            await cdp.Profiler.stopPreciseCoverage();
         }
+        return null;
     });
 };
