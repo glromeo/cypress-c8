@@ -13,7 +13,3 @@ export function addizione(left: number | null, right: number | null): number | n
     }
     return left + right;
 }
-
-// is it really that silly?
-
-(window as any)["x"]="x";

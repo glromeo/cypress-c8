@@ -20659,7 +20659,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     "node_modules/prop-types/factoryWithTypeCheckers.js"(exports, module) {
       "use strict";
       var ReactIs = require_react_is();
-      var assign = require_object_assign();
+      var assign2 = require_object_assign();
       var ReactPropTypesSecret = require_ReactPropTypesSecret();
       var checkPropTypes = require_checkPropTypes();
       var has = Function.call.bind(Object.prototype.hasOwnProperty);
@@ -20939,7 +20939,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
             if (propType !== "object") {
               return new PropTypeError("Invalid " + location + " `" + propFullName + "` of type `" + propType + "` " + ("supplied to `" + componentName + "`, expected `object`."));
             }
-            var allKeys = assign({}, props[propName], shapeTypes);
+            var allKeys = assign2({}, props[propName], shapeTypes);
             for (var key in allKeys) {
               var checker = shapeTypes[key];
               if (!checker) {
@@ -22942,6 +22942,23 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
   validatorNoop.isRequired = validatorNoop;
   var integerPropType_default = false ? validatorNoop : validator;
 
+  // node_modules/@mui/utils/esm/resolveProps.js
+  function resolveProps(defaultProps2, props) {
+    const output = _extends({}, props);
+    Object.keys(defaultProps2).forEach((propName) => {
+      if (output[propName] === void 0) {
+        output[propName] = defaultProps2[propName];
+      }
+    });
+    return output;
+  }
+
+  // node_modules/@mui/base/utils/isHostComponent.js
+  function isHostComponent(element) {
+    return typeof element === "string";
+  }
+  var isHostComponent_default = isHostComponent;
+
   // node_modules/@mui/base/BackdropUnstyled/BackdropUnstyled.js
   var React8 = __toModule(require_react());
   var import_prop_types4 = __toModule(require_prop_types());
@@ -22962,12 +22979,6 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     });
     return output;
   }
-
-  // node_modules/@mui/base/utils/isHostComponent.js
-  function isHostComponent(element) {
-    return typeof element === "string";
-  }
-  var isHostComponent_default = isHostComponent;
 
   // node_modules/@mui/base/generateUtilityClass/ClassNameGenerator.js
   var defaultGenerator = (componentName) => componentName;
@@ -24040,6 +24051,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
   // node_modules/stylis/src/Utility.js
   var abs = Math.abs;
   var from = String.fromCharCode;
+  var assign = Object.assign;
   function hash(value, length2) {
     return (((length2 << 2 ^ charat(value, 0)) << 2 ^ charat(value, 1)) << 2 ^ charat(value, 2)) << 2 ^ charat(value, 3);
   }
@@ -24084,8 +24096,8 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
   function node(value, root, parent, type, props, children, length2) {
     return { value, root, parent, type, props, children, line, column, length: length2, return: "" };
   }
-  function copy(value, root, type) {
-    return node(value, root.root, root.parent, type, root.props, root.children, 0);
+  function copy(root, props) {
+    return assign({}, root, { length: -root.length }, props);
   }
   function char() {
     return character;
@@ -24173,7 +24185,9 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
           return position;
         case 34:
         case 39:
-          return delimiter(type === 34 || type === 39 ? type : character);
+          if (type !== 34 && type !== 39)
+            delimiter(character);
+          break;
         case 40:
           if (type === 41)
             delimiter(type);
@@ -24220,10 +24234,15 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     var characters2 = type;
     while (scanning)
       switch (previous = character2, character2 = next()) {
+        case 40:
+          if (previous != 108 && characters2.charCodeAt(length2 - 1) == 58) {
+            if (indexof(characters2 += replace(delimit(character2), "&", "&\f"), "&\f") != -1)
+              ampersand = -1;
+            break;
+          }
         case 34:
         case 39:
         case 91:
-        case 40:
           characters2 += delimit(character2);
           break;
         case 9:
@@ -24297,7 +24316,7 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
             case 64:
               if (peek() === 45)
                 characters2 += delimit(next());
-              atrule = peek(), offset = strlen(type = characters2 += identifier(caret())), character2++;
+              atrule = peek(), offset = length2 = strlen(type = characters2 += identifier(caret())), character2++;
               break;
             case 45:
               if (previous === 45 && strlen(characters2) == 2)
@@ -24454,6 +24473,8 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
         return element.return = element.return || element.value;
       case COMMENT:
         return "";
+      case KEYFRAMES:
+        return element.return = element.value + "{" + serialize(element.children, callback) + "}";
       case RULESET:
         element.value = element.props.join(",");
     }
@@ -24471,30 +24492,32 @@ For more info, visit https://reactjs.org/link/mock-scheduler`);
     };
   }
   function prefixer(element, index, children, callback) {
-    if (!element.return)
-      switch (element.type) {
-        case DECLARATION:
-          element.return = prefix(element.value, element.length);
-          break;
-        case KEYFRAMES:
-          return serialize([copy(replace(element.value, "@", "@" + WEBKIT), element, "")], callback);
-        case RULESET:
-          if (element.length)
-            return combine(element.props, function(value) {
-              switch (match(value, /(::plac\w+|:read-\w+)/)) {
-                case ":read-only":
-                case ":read-write":
-                  return serialize([copy(replace(value, /:(read-\w+)/, ":" + MOZ + "$1"), element, "")], callback);
-                case "::placeholder":
-                  return serialize([
-                    copy(replace(value, /:(plac\w+)/, ":" + WEBKIT + "input-$1"), element, ""),
-                    copy(replace(value, /:(plac\w+)/, ":" + MOZ + "$1"), element, ""),
-                    copy(replace(value, /:(plac\w+)/, MS + "input-$1"), element, "")
-                  ], callback);
-              }
-              return "";
-            });
-      }
+    if (element.length > -1) {
+      if (!element.return)
+        switch (element.type) {
+          case DECLARATION:
+            element.return = prefix(element.value, element.length);
+            break;
+          case KEYFRAMES:
+            return serialize([copy(element, { value: replace(element.value, "@", "@" + WEBKIT) })], callback);
+          case RULESET:
+            if (element.length)
+              return combine(element.props, function(value) {
+                switch (match(value, /(::plac\w+|:read-\w+)/)) {
+                  case ":read-only":
+                  case ":read-write":
+                    return serialize([copy(element, { props: [replace(value, /:(read-\w+)/, ":" + MOZ + "$1")] })], callback);
+                  case "::placeholder":
+                    return serialize([
+                      copy(element, { props: [replace(value, /:(plac\w+)/, ":" + WEBKIT + "input-$1")] }),
+                      copy(element, { props: [replace(value, /:(plac\w+)/, ":" + MOZ + "$1")] }),
+                      copy(element, { props: [replace(value, /:(plac\w+)/, MS + "input-$1")] })
+                    ], callback);
+                }
+                return "";
+              });
+        }
+    }
   }
 
   // node_modules/@emotion/cache/dist/emotion-cache.browser.esm.js
@@ -26782,15 +26805,7 @@ https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_liter
     if (!theme || !theme.components || !theme.components[name] || !theme.components[name].defaultProps) {
       return props;
     }
-    const output = _extends({}, props);
-    const defaultProps2 = theme.components[name].defaultProps;
-    let propName;
-    for (propName in defaultProps2) {
-      if (output[propName] === void 0) {
-        output[propName] = defaultProps2[propName];
-      }
-    }
-    return output;
+    return resolveProps(theme.components[name].defaultProps, props);
   }
 
   // node_modules/@mui/system/esm/useThemeProps/useThemeProps.js
@@ -27725,7 +27740,7 @@ const theme2 = createTheme({ palette: {
       return null;
     }),
     square: import_prop_types12.default.bool,
-    sx: import_prop_types12.default.oneOfType([import_prop_types12.default.arrayOf(import_prop_types12.default.oneOfType([import_prop_types12.default.func, import_prop_types12.default.object])), import_prop_types12.default.func, import_prop_types12.default.object]),
+    sx: import_prop_types12.default.oneOfType([import_prop_types12.default.arrayOf(import_prop_types12.default.oneOfType([import_prop_types12.default.func, import_prop_types12.default.object, import_prop_types12.default.bool])), import_prop_types12.default.func, import_prop_types12.default.object]),
     variant: import_prop_types12.default.oneOfType([import_prop_types12.default.oneOf(["elevation", "outlined"]), import_prop_types12.default.string])
   } : void 0;
   var Paper_default = Paper;
@@ -27787,7 +27802,7 @@ const theme2 = createTheme({ palette: {
       }
       return null;
     }),
-    sx: import_prop_types13.default.oneOfType([import_prop_types13.default.arrayOf(import_prop_types13.default.oneOfType([import_prop_types13.default.func, import_prop_types13.default.object])), import_prop_types13.default.func, import_prop_types13.default.object])
+    sx: import_prop_types13.default.oneOfType([import_prop_types13.default.arrayOf(import_prop_types13.default.oneOfType([import_prop_types13.default.func, import_prop_types13.default.object, import_prop_types13.default.bool])), import_prop_types13.default.func, import_prop_types13.default.object])
   } : void 0;
   var Card_default = Card;
 
@@ -27850,7 +27865,7 @@ const theme2 = createTheme({ palette: {
     classes: import_prop_types14.default.object,
     className: import_prop_types14.default.string,
     component: import_prop_types14.default.elementType,
-    sx: import_prop_types14.default.oneOfType([import_prop_types14.default.arrayOf(import_prop_types14.default.oneOfType([import_prop_types14.default.func, import_prop_types14.default.object])), import_prop_types14.default.func, import_prop_types14.default.object])
+    sx: import_prop_types14.default.oneOfType([import_prop_types14.default.arrayOf(import_prop_types14.default.oneOfType([import_prop_types14.default.func, import_prop_types14.default.object, import_prop_types14.default.bool])), import_prop_types14.default.func, import_prop_types14.default.object])
   } : void 0;
   var CardContent_default = CardContent;
 
@@ -29042,7 +29057,7 @@ const theme2 = createTheme({ palette: {
     onTouchEnd: import_prop_types20.default.func,
     onTouchMove: import_prop_types20.default.func,
     onTouchStart: import_prop_types20.default.func,
-    sx: import_prop_types20.default.oneOfType([import_prop_types20.default.arrayOf(import_prop_types20.default.oneOfType([import_prop_types20.default.func, import_prop_types20.default.object])), import_prop_types20.default.func, import_prop_types20.default.object]),
+    sx: import_prop_types20.default.oneOfType([import_prop_types20.default.arrayOf(import_prop_types20.default.oneOfType([import_prop_types20.default.func, import_prop_types20.default.object, import_prop_types20.default.bool])), import_prop_types20.default.func, import_prop_types20.default.object]),
     tabIndex: import_prop_types20.default.number,
     TouchRippleProps: import_prop_types20.default.object,
     type: import_prop_types20.default.oneOfType([import_prop_types20.default.oneOf(["button", "reset", "submit"]), import_prop_types20.default.string])
@@ -29070,7 +29085,7 @@ const theme2 = createTheme({ palette: {
   // node_modules/@mui/material/Button/Button.js
   var import_jsx_runtime16 = __toModule(require_jsx_runtime());
   var import_jsx_runtime17 = __toModule(require_jsx_runtime());
-  var _excluded17 = ["children", "className", "color", "component", "disabled", "disableElevation", "disableFocusRipple", "disableRipple", "endIcon", "focusVisibleClassName", "fullWidth", "size", "startIcon", "type", "variant"];
+  var _excluded17 = ["children", "color", "component", "className", "disabled", "disableElevation", "disableFocusRipple", "endIcon", "focusVisibleClassName", "fullWidth", "size", "startIcon", "type", "variant"];
   var useUtilityClasses7 = (ownerState) => {
     const {
       color: color2,
@@ -29263,46 +29278,28 @@ const theme2 = createTheme({ palette: {
     marginRight: -2
   }, commonIconStyles(ownerState)));
   var Button = /* @__PURE__ */ React27.forwardRef(function Button2(inProps, ref) {
+    const contextProps = React27.useContext(ButtonGroupContext_default);
+    const resolvedProps = resolveProps(contextProps, inProps);
     const props = useThemeProps2({
-      props: inProps,
+      props: resolvedProps,
       name: "MuiButton"
     });
     const {
-      className: classNameContext,
-      color: colorContext,
-      disabled: disabledContext,
-      disableElevation: disableElevationContext,
-      disableFocusRipple: disableFocusRippleContext,
-      disableRipple: disableRippleContext,
-      fullWidth: fullWidthContext,
-      size: sizeContext,
-      variant: variantContext
-    } = React27.useContext(ButtonGroupContext_default);
-    const {
       children,
-      className,
-      color: colorProp,
+      color: color2 = "primary",
       component = "button",
-      disabled: disabledProp,
-      disableElevation: disableElevationProp,
-      disableFocusRipple: disableFocusRippleProp,
-      disableRipple: disableRippleProp,
+      className,
+      disabled = false,
+      disableElevation = false,
+      disableFocusRipple = false,
       endIcon: endIconProp,
       focusVisibleClassName,
-      fullWidth: fullWidthProp,
-      size: sizeProp,
+      fullWidth = false,
+      size = "medium",
       startIcon: startIconProp,
       type,
-      variant: variantProp
+      variant = "text"
     } = props, other = _objectWithoutPropertiesLoose(props, _excluded17);
-    const color2 = colorProp || colorContext || "primary";
-    const disabled = disabledProp || disabledContext || false;
-    const disableElevation = disableElevationProp || disableElevationContext || false;
-    const disableFocusRipple = disableFocusRippleProp || disableFocusRippleContext || false;
-    const fullWidth = fullWidthProp || fullWidthContext || false;
-    const size = sizeProp || sizeContext || "medium";
-    const variant = variantProp || variantContext || "text";
-    const disableRipple = disableRippleProp || disableRippleContext || false;
     const ownerState = _extends({}, props, {
       color: color2,
       component,
@@ -29327,10 +29324,9 @@ const theme2 = createTheme({ palette: {
     });
     return /* @__PURE__ */ (0, import_jsx_runtime17.jsxs)(ButtonRoot, _extends({
       ownerState,
-      className: clsx_m_default(className, classNameContext),
+      className: clsx_m_default(className, contextProps.className),
       component,
       disabled,
-      disableRipple,
       focusRipple: !disableFocusRipple,
       focusVisibleClassName: clsx_m_default(classes.focusVisible, focusVisibleClassName),
       ref,
@@ -29356,7 +29352,7 @@ const theme2 = createTheme({ palette: {
     href: import_prop_types21.default.string,
     size: import_prop_types21.default.oneOfType([import_prop_types21.default.oneOf(["small", "medium", "large"]), import_prop_types21.default.string]),
     startIcon: import_prop_types21.default.node,
-    sx: import_prop_types21.default.oneOfType([import_prop_types21.default.arrayOf(import_prop_types21.default.oneOfType([import_prop_types21.default.func, import_prop_types21.default.object])), import_prop_types21.default.func, import_prop_types21.default.object]),
+    sx: import_prop_types21.default.oneOfType([import_prop_types21.default.arrayOf(import_prop_types21.default.oneOfType([import_prop_types21.default.func, import_prop_types21.default.object, import_prop_types21.default.bool])), import_prop_types21.default.func, import_prop_types21.default.object]),
     type: import_prop_types21.default.oneOfType([import_prop_types21.default.oneOf(["button", "reset", "submit"]), import_prop_types21.default.string]),
     variant: import_prop_types21.default.oneOfType([import_prop_types21.default.oneOf(["contained", "outlined", "text"]), import_prop_types21.default.string])
   } : void 0;
@@ -29474,7 +29470,7 @@ const theme2 = createTheme({ palette: {
     fontSize: import_prop_types22.default.oneOfType([import_prop_types22.default.oneOf(["inherit", "large", "medium", "small"]), import_prop_types22.default.string]),
     htmlColor: import_prop_types22.default.string,
     shapeRendering: import_prop_types22.default.string,
-    sx: import_prop_types22.default.oneOfType([import_prop_types22.default.arrayOf(import_prop_types22.default.oneOfType([import_prop_types22.default.func, import_prop_types22.default.object])), import_prop_types22.default.func, import_prop_types22.default.object]),
+    sx: import_prop_types22.default.oneOfType([import_prop_types22.default.arrayOf(import_prop_types22.default.oneOfType([import_prop_types22.default.func, import_prop_types22.default.object, import_prop_types22.default.bool])), import_prop_types22.default.func, import_prop_types22.default.object]),
     titleAccess: import_prop_types22.default.string,
     viewBox: import_prop_types22.default.string
   } : void 0;
@@ -29790,7 +29786,7 @@ const theme2 = createTheme({ palette: {
     componentsProps: import_prop_types24.default.object,
     invisible: import_prop_types24.default.bool,
     open: import_prop_types24.default.bool.isRequired,
-    sx: import_prop_types24.default.oneOfType([import_prop_types24.default.arrayOf(import_prop_types24.default.oneOfType([import_prop_types24.default.func, import_prop_types24.default.object])), import_prop_types24.default.func, import_prop_types24.default.object]),
+    sx: import_prop_types24.default.oneOfType([import_prop_types24.default.arrayOf(import_prop_types24.default.oneOfType([import_prop_types24.default.func, import_prop_types24.default.object, import_prop_types24.default.bool])), import_prop_types24.default.func, import_prop_types24.default.object]),
     transitionDuration: import_prop_types24.default.oneOfType([import_prop_types24.default.number, import_prop_types24.default.shape({
       appear: import_prop_types24.default.number,
       enter: import_prop_types24.default.number,
@@ -29948,7 +29944,7 @@ const theme2 = createTheme({ palette: {
     onBackdropClick: import_prop_types26.default.func,
     onClose: import_prop_types26.default.func,
     open: import_prop_types26.default.bool.isRequired,
-    sx: import_prop_types26.default.oneOfType([import_prop_types26.default.arrayOf(import_prop_types26.default.oneOfType([import_prop_types26.default.func, import_prop_types26.default.object])), import_prop_types26.default.func, import_prop_types26.default.object])
+    sx: import_prop_types26.default.oneOfType([import_prop_types26.default.arrayOf(import_prop_types26.default.oneOfType([import_prop_types26.default.func, import_prop_types26.default.object, import_prop_types26.default.bool])), import_prop_types26.default.func, import_prop_types26.default.object])
   } : void 0;
   var Modal_default = Modal;
 
@@ -30435,7 +30431,7 @@ const theme2 = createTheme({ palette: {
     rows: import_prop_types27.default.oneOfType([import_prop_types27.default.number, import_prop_types27.default.string]),
     size: import_prop_types27.default.oneOfType([import_prop_types27.default.oneOf(["medium", "small"]), import_prop_types27.default.string]),
     startAdornment: import_prop_types27.default.node,
-    sx: import_prop_types27.default.oneOfType([import_prop_types27.default.arrayOf(import_prop_types27.default.oneOfType([import_prop_types27.default.func, import_prop_types27.default.object])), import_prop_types27.default.func, import_prop_types27.default.object]),
+    sx: import_prop_types27.default.oneOfType([import_prop_types27.default.arrayOf(import_prop_types27.default.oneOfType([import_prop_types27.default.func, import_prop_types27.default.object, import_prop_types27.default.bool])), import_prop_types27.default.func, import_prop_types27.default.object]),
     type: import_prop_types27.default.string,
     value: import_prop_types27.default.any
   } : void 0;
@@ -30662,7 +30658,7 @@ const theme2 = createTheme({ palette: {
     required: import_prop_types28.default.bool,
     rows: import_prop_types28.default.oneOfType([import_prop_types28.default.number, import_prop_types28.default.string]),
     startAdornment: import_prop_types28.default.node,
-    sx: import_prop_types28.default.oneOfType([import_prop_types28.default.arrayOf(import_prop_types28.default.oneOfType([import_prop_types28.default.func, import_prop_types28.default.object])), import_prop_types28.default.func, import_prop_types28.default.object]),
+    sx: import_prop_types28.default.oneOfType([import_prop_types28.default.arrayOf(import_prop_types28.default.oneOfType([import_prop_types28.default.func, import_prop_types28.default.object, import_prop_types28.default.bool])), import_prop_types28.default.func, import_prop_types28.default.object]),
     type: import_prop_types28.default.string,
     value: import_prop_types28.default.any
   } : void 0;
@@ -30856,7 +30852,7 @@ const theme2 = createTheme({ palette: {
     margin: import_prop_types29.default.oneOf(["dense", "none", "normal"]),
     required: import_prop_types29.default.bool,
     size: import_prop_types29.default.oneOfType([import_prop_types29.default.oneOf(["medium", "small"]), import_prop_types29.default.string]),
-    sx: import_prop_types29.default.oneOfType([import_prop_types29.default.arrayOf(import_prop_types29.default.oneOfType([import_prop_types29.default.func, import_prop_types29.default.object])), import_prop_types29.default.func, import_prop_types29.default.object]),
+    sx: import_prop_types29.default.oneOfType([import_prop_types29.default.arrayOf(import_prop_types29.default.oneOfType([import_prop_types29.default.func, import_prop_types29.default.object, import_prop_types29.default.bool])), import_prop_types29.default.func, import_prop_types29.default.object]),
     variant: import_prop_types29.default.oneOf(["filled", "outlined", "standard"])
   } : void 0;
   var FormControl_default = FormControl;
@@ -30976,7 +30972,7 @@ const theme2 = createTheme({ palette: {
     focused: import_prop_types30.default.bool,
     margin: import_prop_types30.default.oneOf(["dense"]),
     required: import_prop_types30.default.bool,
-    sx: import_prop_types30.default.oneOfType([import_prop_types30.default.arrayOf(import_prop_types30.default.oneOfType([import_prop_types30.default.func, import_prop_types30.default.object])), import_prop_types30.default.func, import_prop_types30.default.object]),
+    sx: import_prop_types30.default.oneOfType([import_prop_types30.default.arrayOf(import_prop_types30.default.oneOfType([import_prop_types30.default.func, import_prop_types30.default.object, import_prop_types30.default.bool])), import_prop_types30.default.func, import_prop_types30.default.object]),
     variant: import_prop_types30.default.oneOf(["filled", "outlined", "standard"])
   } : void 0;
   var FormHelperText_default = FormHelperText;
@@ -31100,7 +31096,7 @@ const theme2 = createTheme({ palette: {
     filled: import_prop_types31.default.bool,
     focused: import_prop_types31.default.bool,
     required: import_prop_types31.default.bool,
-    sx: import_prop_types31.default.oneOfType([import_prop_types31.default.arrayOf(import_prop_types31.default.oneOfType([import_prop_types31.default.func, import_prop_types31.default.object])), import_prop_types31.default.func, import_prop_types31.default.object])
+    sx: import_prop_types31.default.oneOfType([import_prop_types31.default.arrayOf(import_prop_types31.default.oneOfType([import_prop_types31.default.func, import_prop_types31.default.object, import_prop_types31.default.bool])), import_prop_types31.default.func, import_prop_types31.default.object])
   } : void 0;
   var FormLabel_default = FormLabel;
 
@@ -31446,7 +31442,7 @@ const theme2 = createTheme({ palette: {
     required: import_prop_types33.default.bool,
     rows: import_prop_types33.default.oneOfType([import_prop_types33.default.number, import_prop_types33.default.string]),
     startAdornment: import_prop_types33.default.node,
-    sx: import_prop_types33.default.oneOfType([import_prop_types33.default.arrayOf(import_prop_types33.default.oneOfType([import_prop_types33.default.func, import_prop_types33.default.object])), import_prop_types33.default.func, import_prop_types33.default.object]),
+    sx: import_prop_types33.default.oneOfType([import_prop_types33.default.arrayOf(import_prop_types33.default.oneOfType([import_prop_types33.default.func, import_prop_types33.default.object, import_prop_types33.default.bool])), import_prop_types33.default.func, import_prop_types33.default.object]),
     type: import_prop_types33.default.string,
     value: import_prop_types33.default.any
   } : void 0;
@@ -31591,7 +31587,7 @@ const theme2 = createTheme({ palette: {
     margin: import_prop_types34.default.oneOf(["dense"]),
     required: import_prop_types34.default.bool,
     shrink: import_prop_types34.default.bool,
-    sx: import_prop_types34.default.oneOfType([import_prop_types34.default.arrayOf(import_prop_types34.default.oneOfType([import_prop_types34.default.func, import_prop_types34.default.object])), import_prop_types34.default.func, import_prop_types34.default.object]),
+    sx: import_prop_types34.default.oneOfType([import_prop_types34.default.arrayOf(import_prop_types34.default.oneOfType([import_prop_types34.default.func, import_prop_types34.default.object, import_prop_types34.default.bool])), import_prop_types34.default.func, import_prop_types34.default.object]),
     variant: import_prop_types34.default.oneOf(["filled", "outlined", "standard"])
   } : void 0;
   var InputLabel_default = InputLabel;
@@ -31694,7 +31690,7 @@ const theme2 = createTheme({ palette: {
     dense: import_prop_types35.default.bool,
     disablePadding: import_prop_types35.default.bool,
     subheader: import_prop_types35.default.node,
-    sx: import_prop_types35.default.oneOfType([import_prop_types35.default.arrayOf(import_prop_types35.default.oneOfType([import_prop_types35.default.func, import_prop_types35.default.object])), import_prop_types35.default.func, import_prop_types35.default.object])
+    sx: import_prop_types35.default.oneOfType([import_prop_types35.default.arrayOf(import_prop_types35.default.oneOfType([import_prop_types35.default.func, import_prop_types35.default.object, import_prop_types35.default.bool])), import_prop_types35.default.func, import_prop_types35.default.object])
   } : void 0;
   var List_default = List;
 
@@ -32206,7 +32202,7 @@ const theme2 = createTheme({ palette: {
     PaperProps: import_prop_types37.default.shape({
       component: elementTypeAcceptingRef_default
     }),
-    sx: import_prop_types37.default.oneOfType([import_prop_types37.default.arrayOf(import_prop_types37.default.oneOfType([import_prop_types37.default.func, import_prop_types37.default.object])), import_prop_types37.default.func, import_prop_types37.default.object]),
+    sx: import_prop_types37.default.oneOfType([import_prop_types37.default.arrayOf(import_prop_types37.default.oneOfType([import_prop_types37.default.func, import_prop_types37.default.object, import_prop_types37.default.bool])), import_prop_types37.default.func, import_prop_types37.default.object]),
     transformOrigin: import_prop_types37.default.shape({
       horizontal: import_prop_types37.default.oneOfType([import_prop_types37.default.oneOf(["center", "left", "right"]), import_prop_types37.default.number]).isRequired,
       vertical: import_prop_types37.default.oneOfType([import_prop_types37.default.oneOf(["bottom", "center", "top"]), import_prop_types37.default.number]).isRequired
@@ -32387,7 +32383,7 @@ const theme2 = createTheme({ palette: {
     open: import_prop_types38.default.bool.isRequired,
     PaperProps: import_prop_types38.default.object,
     PopoverClasses: import_prop_types38.default.object,
-    sx: import_prop_types38.default.oneOfType([import_prop_types38.default.arrayOf(import_prop_types38.default.oneOfType([import_prop_types38.default.func, import_prop_types38.default.object])), import_prop_types38.default.func, import_prop_types38.default.object]),
+    sx: import_prop_types38.default.oneOfType([import_prop_types38.default.arrayOf(import_prop_types38.default.oneOfType([import_prop_types38.default.func, import_prop_types38.default.object, import_prop_types38.default.bool])), import_prop_types38.default.func, import_prop_types38.default.object]),
     transitionDuration: import_prop_types38.default.oneOfType([import_prop_types38.default.oneOf(["auto"]), import_prop_types38.default.number, import_prop_types38.default.shape({
       appear: import_prop_types38.default.number,
       enter: import_prop_types38.default.number,
@@ -32810,7 +32806,7 @@ const theme2 = createTheme({ palette: {
     required: import_prop_types41.default.bool,
     rows: import_prop_types41.default.oneOfType([import_prop_types41.default.number, import_prop_types41.default.string]),
     startAdornment: import_prop_types41.default.node,
-    sx: import_prop_types41.default.oneOfType([import_prop_types41.default.arrayOf(import_prop_types41.default.oneOfType([import_prop_types41.default.func, import_prop_types41.default.object])), import_prop_types41.default.func, import_prop_types41.default.object]),
+    sx: import_prop_types41.default.oneOfType([import_prop_types41.default.arrayOf(import_prop_types41.default.oneOfType([import_prop_types41.default.func, import_prop_types41.default.object, import_prop_types41.default.bool])), import_prop_types41.default.func, import_prop_types41.default.object]),
     type: import_prop_types41.default.string,
     value: import_prop_types41.default.any
   } : void 0;
@@ -33160,7 +33156,11 @@ const theme2 = createTheme({ palette: {
     }
     if (computeDisplay) {
       if (multiple) {
-        display = displayMultiple.reduce((prev2, curr) => [prev2, ", ", curr]);
+        if (value.length === 0) {
+          display = "";
+        } else {
+          display = displayMultiple.reduce((prev2, curr) => [prev2, ", ", curr]);
+        }
       } else {
         display = displaySingle;
       }
@@ -33395,7 +33395,7 @@ const theme2 = createTheme({ palette: {
     open: import_prop_types43.default.bool,
     renderValue: import_prop_types43.default.func,
     SelectDisplayProps: import_prop_types43.default.object,
-    sx: import_prop_types43.default.oneOfType([import_prop_types43.default.arrayOf(import_prop_types43.default.oneOfType([import_prop_types43.default.func, import_prop_types43.default.object])), import_prop_types43.default.func, import_prop_types43.default.object]),
+    sx: import_prop_types43.default.oneOfType([import_prop_types43.default.arrayOf(import_prop_types43.default.oneOfType([import_prop_types43.default.func, import_prop_types43.default.object, import_prop_types43.default.bool])), import_prop_types43.default.func, import_prop_types43.default.object]),
     value: import_prop_types43.default.any,
     variant: import_prop_types43.default.oneOf(["filled", "outlined", "standard"])
   } : void 0;
@@ -33599,7 +33599,7 @@ const theme2 = createTheme({ palette: {
     select: import_prop_types44.default.bool,
     SelectProps: import_prop_types44.default.object,
     size: import_prop_types44.default.oneOfType([import_prop_types44.default.oneOf(["medium", "small"]), import_prop_types44.default.string]),
-    sx: import_prop_types44.default.oneOfType([import_prop_types44.default.arrayOf(import_prop_types44.default.oneOfType([import_prop_types44.default.func, import_prop_types44.default.object])), import_prop_types44.default.func, import_prop_types44.default.object]),
+    sx: import_prop_types44.default.oneOfType([import_prop_types44.default.arrayOf(import_prop_types44.default.oneOfType([import_prop_types44.default.func, import_prop_types44.default.object, import_prop_types44.default.bool])), import_prop_types44.default.func, import_prop_types44.default.object]),
     type: import_prop_types44.default.string,
     value: import_prop_types44.default.any,
     variant: import_prop_types44.default.oneOf(["filled", "outlined", "standard"])
@@ -33616,7 +33616,6 @@ const theme2 = createTheme({ palette: {
     }
     return left2 + right2;
   }
-  window["x"] = "x";
 
   // src/App.tsx
   function App() {
@@ -33672,7 +33671,7 @@ const theme2 = createTheme({ palette: {
     }, "Calculate")))));
   }
 
-  // sass-plugin-0:/Users/Gianluca/IdeaProjects/cypress-c8/src/index.scss
+  // sass-plugin-0:D:\Workspace\cypress-c8\src\index.scss
   var css2 = `.flex-row {
   display: flex;
   flex-direction: row;
@@ -33721,7 +33720,7 @@ object-assign
  * @internal
  * @license Modernizr 3.0.0pre (Custom Build) | MIT
  */
-/** @license MUI v5.0.0-alpha.58
+/** @license MUI v5.0.0-alpha.59
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -33731,7 +33730,7 @@ object-assign
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-/** @license MUI v5.2.2
+/** @license MUI v5.2.3
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
