@@ -20,7 +20,7 @@ const NYC_OUTFILE = path.join(NYC_OUTPUT, `out.json`);
 try {
     fs.rmSync(NYC_OUTFILE);
 } catch (e) {
-    throw new Error("unable to delete previous coverage results");
+    if (e.code === "ENOENT") throw new Error("unable to delete previous coverage results");
 }
 
 let cdp;
