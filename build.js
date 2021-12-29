@@ -9,5 +9,6 @@ esbuild.build({
     ],
     bundle: true,
     minify: false,
-    sourcemap: true
+    sourcemap: true,
+    treeShaking: false
 }).then(()=>console.log("OK"), (e)=>console.error(e));
