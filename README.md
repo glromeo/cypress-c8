@@ -4,6 +4,8 @@
 
 This project runs tests with `Cypress` and collect code coverage using `v8 native Profiler` and the `Chrome Debugger Protocol` for then generating reports using `c8`.
 
+**NOTE:** This project is really a PoC... I gathered together [a set of plugins for Cypress](https://github.com/glromeo/cypress-plugins) amongst which [this one](https://github.com/glromeo/cypress-plugins/tree/main/coverage-plugin) which aims at consolidating what I did here.
+
 ### Install
 Well... in this case just clone the project and tailor it to your needs. Happy hacking!
 
